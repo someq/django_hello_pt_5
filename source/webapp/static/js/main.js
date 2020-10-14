@@ -1,5 +1,34 @@
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        let cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            let cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+
 async function makeRequest(url, method='GET') {
-    let response = await fetch(url, {method});
+    let opts = {method};
+
+    if (!csrfSafeMethod(method)) {
+        let csrftoken = getCookie('csrftoken');
+        opts.headers = {};
+        opts.headers['X-CSRFToken'] = csrftoken;
+    }
+
+    let response = await fetch(url, opts);
 
     if (response.ok) {  // нормальный ответ
         return await response.text();
@@ -16,7 +45,7 @@ async function onLike(event) {
     let url = likeBtn.href;
 
     try {
-        let response = await makeRequest(url);
+        let response = await makeRequest(url, 'POST');
         console.log(response);
         const counter = likeBtn.parentElement.getElementsByClassName('counter')[0];
         counter.innerText = response;
@@ -36,7 +65,7 @@ async function onUnlike(event) {
     let url = unlikeBtn.href;
 
     try {
-        let response = await makeRequest(url);
+        let response = await makeRequest(url, 'DELETE');
         console.log(response);
         const counter = unlikeBtn.parentElement.getElementsByClassName('counter')[0];
         counter.innerText = response;

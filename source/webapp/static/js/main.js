@@ -1,3 +1,6 @@
+const BASE_URL = 'http://localhost:8000/api/v1/';
+
+
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -19,13 +22,15 @@ function csrfSafeMethod(method) {
     return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
 }
 
-async function makeRequest(url, method='GET') {
-    let opts = {method};
+async function makeRequest(url, method='GET', data=undefined) {
+    let opts = {method, headers: {}};
 
-    if (!csrfSafeMethod(method)) {
-        let csrftoken = getCookie('csrftoken');
-        opts.headers = {};
-        opts.headers['X-CSRFToken'] = csrftoken;
+    if (!csrfSafeMethod(method))
+        opts.headers['X-CSRFToken'] = getCookie('csrftoken');
+
+    if (data) {
+        opts.headers['Content-Type'] = 'application/json';
+        opts.body = JSON.stringify(data);
     }
 
     let response = await fetch(url, opts);

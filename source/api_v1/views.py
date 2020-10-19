@@ -1,12 +1,11 @@
-import json
-from django.http import HttpResponse, HttpResponseNotAllowed, JsonResponse
+from django.contrib.auth import get_user_model
+from django.http import HttpResponse, HttpResponseNotAllowed
 from django.shortcuts import get_object_or_404
-from django.views.generic import View
 from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework.response import Response
-from rest_framework.viewsets import ViewSet
+from rest_framework.viewsets import ViewSet, ModelViewSet
 
-from api_v1.serializers import ArticleSerializer
+from api_v1.serializers import ArticleSerializer, UserSerializer
 from webapp.models import Article
 
 
@@ -22,7 +21,7 @@ class ArticleViewSet(ViewSet):
 
     def list(self, request):
         objects = Article.objects.all()
-        slr = ArticleSerializer(objects, many=True)
+        slr = ArticleSerializer(objects, many=True, context={'request': request})
         return Response(slr.data)
 
     def create(self, request):
@@ -34,9 +33,8 @@ class ArticleViewSet(ViewSet):
             return Response(slr.errors, status=400)
 
     def retrieve(self, request, pk=None):
-        print(pk)
         article = get_object_or_404(Article, pk=pk)
-        slr = ArticleSerializer(article)
+        slr = ArticleSerializer(article, context={'request': request})
         return Response(slr.data)
 
     def update(self, request, pk=None):
@@ -52,3 +50,8 @@ class ArticleViewSet(ViewSet):
         article = get_object_or_404(Article, pk=pk)
         article.delete()
         return Response({'pk': pk})
+
+
+class UserViewSet(ModelViewSet):
+    queryset = get_user_model().objects.all()
+    serializer_class = UserSerializer

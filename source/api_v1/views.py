@@ -3,9 +3,11 @@ from django.http import HttpResponse, HttpResponseNotAllowed
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework.decorators import action
+from rest_framework.permissions import DjangoModelPermissionsOrAnonReadOnly, AllowAny
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet, ModelViewSet
 
+from api_v1.permissions import GETModelPermissions
 from api_v1.serializers import ArticleSerializer, UserSerializer
 from webapp.models import Article, ArticleLike
 
@@ -19,6 +21,15 @@ def get_token_view(request, *args, **kwargs):
 
 class ArticleViewSet(ViewSet):
     queryset = Article.objects.all()
+    # permission_classes = [DjangoModelPermissionsOrAnonReadOnly]
+
+    def get_permissions(self):
+        print(self.action)
+        print(self.request.method)
+        if self.action in ['list', 'retrieve']:  # self.request.method == "GET"
+            return [GETModelPermissions()]
+        else:
+            return [AllowAny()]
 
     def list(self, request):
         objects = Article.objects.all()

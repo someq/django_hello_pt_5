@@ -26,7 +26,7 @@ class ArticleViewSet(ViewSet):
         return Response(slr.data)
 
     def create(self, request):
-        slr = ArticleSerializer(data=request.data)
+        slr = ArticleSerializer(data=request.data, context={'request': request})
         if slr.is_valid():
             article = slr.save()
             return Response(slr.data)
@@ -40,7 +40,7 @@ class ArticleViewSet(ViewSet):
 
     def update(self, request, pk=None):
         article = get_object_or_404(Article, pk=pk)
-        slr = ArticleSerializer(data=request.data, instance=article)
+        slr = ArticleSerializer(data=request.data, instance=article, context={'request': request})
         if slr.is_valid():
             article = slr.save()
             return Response(slr.data)

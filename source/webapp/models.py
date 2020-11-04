@@ -4,9 +4,10 @@ from django.db import models
 from django.utils import timezone
 
 
+STATUS_MODERATED = 'moderated'
 STATUS_CHOICES = [
     ('new', 'Не модерировано'),
-    ('moderated', 'Модерировано'),
+    (STATUS_MODERATED, 'Модерировано'),
     ('rejected', 'Отклонено')
 ]
 

@@ -1,8 +1,15 @@
+beautifulsoup4==4.9.3
+behave==1.2.6
+behave-django==1.4.0
 Django==2.2.13
 django-widget-tweaks==1.4.8
 djangorestframework==3.12.1
+parse==1.18.0
+parse-type==0.5.2
 Pillow==7.2.0
 pytz==2020.1
 selenium==3.141.0
+six==1.15.0
+soupsieve==2.0.1
 sqlparse==0.3.1
 urllib3==1.26.0

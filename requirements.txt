@@ -4,6 +4,7 @@ behave-django==1.4.0
 Django==2.2.13
 django-widget-tweaks==1.4.8
 djangorestframework==3.12.1
+mysqlclient==2.0.1
 parse==1.18.0
 parse-type==0.5.2
 Pillow==7.2.0

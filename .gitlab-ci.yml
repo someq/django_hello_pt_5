@@ -1,5 +1,9 @@
 image: python:3.6
-  
+
+cache:
+  paths:
+    - ~/.cache/pip/
+
 stages:
   - test
   - deploy
@@ -48,6 +52,6 @@ update_demo:
     - pip install -r requirements.txt
     - cd source
     - python manage.py migrate
-    - python manage.py collectstatic
+    - python manage.py collectstatic --noinput
     - touch hello/wsgi.py
     - EOF

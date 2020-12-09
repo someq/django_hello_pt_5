@@ -1,0 +1,41 @@
+image: python:3.6
+  
+stages:
+  - test
+  - deploy
+
+run_units_tests:
+  stage: test
+  script:
+    - pip install requirements.txt
+    - cd source
+    - python manage.py test --exclude-tag selenium
+
+run_acceptance_tests:
+  stage: test
+  script:
+    - echo "Acceptance test not supported by CI"
+
+update_demo:
+  stage: deploy
+
+  before_script:
+    - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+
+  script:
+    - ssh blog@142.93.108.157 << EOF
+    - cd ~/projects/django_hello_pt_5
+    - git pull
+    - source venv/bin/activate
+    - pip install -r requirements.txt
+    - cd source
+    - python manage.py migrate
+    - python manage.py collectstatic
+    - touch hello/wsgi.py
+    - EOF

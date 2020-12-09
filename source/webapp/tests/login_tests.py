@@ -1,7 +1,8 @@
-from django.test import TestCase
+from django.test import TestCase, tag
 from selenium.webdriver import Chrome
 
 
+@tag('selenium')
 class LoginTest(TestCase):
     def setUp(self):
         self.driver = Chrome()

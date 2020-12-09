@@ -4,12 +4,11 @@ stages:
   - test
   - deploy
 
-only:
-  refs:
-    - master
-
 run_units_tests:
   stage: test
+  only:
+    refs:
+      - master
   script:
     - pip install -r requirements.txt
     - cd source
@@ -17,11 +16,18 @@ run_units_tests:
 
 run_acceptance_tests:
   stage: test
+  only:
+    refs:
+      - master
   script:
     - echo "Acceptance test not supported by CI"
 
 update_demo:
   stage: deploy
+
+  only:
+    refs:
+      - master
 
   before_script:
     - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'

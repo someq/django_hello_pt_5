@@ -6,7 +6,7 @@ stages:
 
 run_units_tests:
   before_script:
-    echo "$SETTINGS_LOCAL" > source/hello/settings_local.py
+    - echo "$SETTINGS_LOCAL" > source/hello/settings_local.py
   stage: test
   only:
     refs:

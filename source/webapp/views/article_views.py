@@ -20,6 +20,7 @@ class IndexView(SearchView):
     model = Article
     ordering = ['-created_at']
     search_fields = ['title__icontains', 'author__icontains']
+    extra_context = {'version': 'v1'}
 
     def get_queryset(self):
         data = super().get_queryset()

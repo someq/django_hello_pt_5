@@ -1,4 +1,6 @@
 {% load staticfiles %}
+{% load i18n %}
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -45,6 +47,19 @@
                         {{ search_form.search }}
                         <input type="submit" value="Найти">
                     </form>
+                </div>
+
+                <div class="lang-links">
+                    {% get_current_language as LANGUAGE_CODE %}
+                    {% get_available_languages as LANGUAGES %}
+                    {% get_language_info_list for LANGUAGES as languages %}
+                    {% get_language_info for LANGUAGE_CODE as current_language %}
+                    {% for language in languages %}
+                        <a class="lang-link {% if language.code == LANGUAGE_CODE %}active{% endif %}"
+                           href="{% if language.code != default_language %}/{{ language.code }}{% endif %}{{ language_base_link }}">
+                            {{ language.name_local }} ({{ language.code }})
+                        </a>
+                    {% endfor %}
                 </div>
             {% endblock %}
         </div>

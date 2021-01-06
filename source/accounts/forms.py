@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.conf import settings
 from django import forms
 from django.contrib.auth import get_user_model
+from django.utils.translation import gettext as _, gettext_lazy
 
 from .models import AuthToken, Profile, TOKEN_TYPE_PASSWORD_RESET
 
@@ -67,14 +68,14 @@ class ProfileChangeForm(forms.ModelForm):
 
 
 class SetPasswordForm(forms.ModelForm):
-    password = forms.CharField(label="Новый пароль", strip=False, widget=forms.PasswordInput)
-    password_confirm = forms.CharField(label="Подтвердите пароль", widget=forms.PasswordInput, strip=False)
+    password = forms.CharField(label=gettext_lazy("Новый пароль"), strip=False, widget=forms.PasswordInput)
+    password_confirm = forms.CharField(label=gettext_lazy("Подтвердите пароль"), widget=forms.PasswordInput, strip=False)
 
     def clean_password_confirm(self):
         password = self.cleaned_data.get("password")
         password_confirm = self.cleaned_data.get("password_confirm")
         if password and password_confirm and password != password_confirm:
-            raise forms.ValidationError('Пароли не совпадают!')
+            raise forms.ValidationError(_('Пароли не совпадают!'))
         return password_confirm
 
     def save(self, commit=True):
@@ -90,12 +91,12 @@ class SetPasswordForm(forms.ModelForm):
 
 
 class PasswordChangeForm(SetPasswordForm):
-    old_password = forms.CharField(label="Старый пароль", strip=False, widget=forms.PasswordInput)
+    old_password = forms.CharField(label=gettext_lazy("Старый пароль"), strip=False, widget=forms.PasswordInput)
 
     def clean_old_password(self):
         old_password = self.cleaned_data.get('old_password')
         if not self.instance.check_password(old_password):
-            raise forms.ValidationError('Старый пароль неправильный!')
+            raise forms.ValidationError(_('Старый пароль неправильный!'))
         return old_password
 
     class Meta:

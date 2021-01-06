@@ -183,3 +183,16 @@ input[type='submit']:hover {
     text-align: center;
     color: gray;
 }
+
+.lang-link {
+    font-size: 14px;
+    color: white;
+    display: inline-block;
+    padding: 5px 10px;
+    text-decoration: none;
+}
+
+.lang-link:hover {
+    color: #ffc122;
+    text-decoration: underline;
+}

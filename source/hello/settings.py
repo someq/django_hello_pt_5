@@ -43,12 +43,14 @@ INSTALLED_APPS = [
     'accounts',
     'webapp',
     'api_v1',
-    'behave_django'
+    'behave_django',
+    'silk',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'silk.middleware.SilkyMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',

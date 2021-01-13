@@ -11,7 +11,7 @@
 {% endif %}
         {% for article in articles %}
             <div class="box">
-                <h3><a href="{% url "webapp:article_view" article.pk %}">{{ article.title }}</a></h3>
+                <h3><a href="{% url "webapp:article_view" article.pk %}">{{ article.title }} ({{ article.comment_count }})</a></h3>
                 {% if show_mass_delete %}
                     <p>
                         <label for="selected_articles-{{ article.pk }}">Select:</label>
@@ -25,6 +25,7 @@
                     | {{ article.created_at|date:"d.m.Y H:i:s" }}
                 </p>
                 <p>Published at: {{ article.publish_at|date:"d.m.Y H:i:s" }}</p>
+                <p>Tags: {% for tag in article.tags.all %}{{ tag.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
                 {% if perms.webapp.change_article or article.author == request.user %}
                     <p><a href="{% url 'webapp:article_update' article.pk %}">Update</a></p>
                 {% endif %}

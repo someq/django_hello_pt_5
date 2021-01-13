@@ -14,7 +14,7 @@
 
 {% block content %}
     <div class="box">
-        <h1>{{ article.title }}</h1>
+        <h1>{{ article.title }} ({{ article.comment_count }})</h1>
         <p class="pre">{{ article.text }}</p>
         <p>By:
             <a href="{% url 'accounts:detail' article.author_id %}">{{ article.author }}</a>

@@ -1,6 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, \
     UserPassesTestMixin
 from django.core.paginator import Paginator
+from django.db.models import Count
 from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse, reverse_lazy
@@ -15,7 +16,7 @@ from .base_views import SearchView
 class IndexView(SearchView):
     template_name = 'article/index.html'
     context_object_name = 'articles'
-    paginate_by = 2
+    paginate_by = 10
     paginate_orphans = 0
     model = Article
     ordering = ['-created_at']
@@ -25,7 +26,10 @@ class IndexView(SearchView):
     def get_queryset(self):
         data = super().get_queryset()
         if not self.request.GET.get('is_admin', None):
-            data = data.filter(status='moderated')
+            data = data.filter(status='moderated')\
+                .select_related('author')\
+                .prefetch_related('tags')\
+                .annotate(comment_count=Count('comments'))
         return data
 
 

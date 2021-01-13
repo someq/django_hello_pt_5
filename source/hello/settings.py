@@ -171,5 +171,12 @@ ACTIVATE_USERS_EMAIL = False  # True
 MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads')
 MEDIA_URL = '/media/'
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': '/var/tmp/django_blog_cache',
+        'TIMEOUT': 60,
+    }
+}
 
 from .settings_local import *

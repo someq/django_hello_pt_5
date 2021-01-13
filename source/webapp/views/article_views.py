@@ -11,12 +11,13 @@ from django.views.generic import View, DetailView, CreateView, UpdateView, Delet
 from webapp.models import Article, Tag, ArticleLike
 from webapp.forms import ArticleForm, BROWSER_DATETIME_FORMAT
 from .base_views import SearchView
+from django.core.cache import cache
 
 
 class IndexView(SearchView):
     template_name = 'article/index.html'
     context_object_name = 'articles'
-    paginate_by = 10
+    paginate_by = 5
     paginate_orphans = 0
     model = Article
     ordering = ['-created_at']
@@ -24,12 +25,16 @@ class IndexView(SearchView):
     extra_context = {'version': 'v1'}
 
     def get_queryset(self):
-        data = super().get_queryset()
-        if not self.request.GET.get('is_admin', None):
-            data = data.filter(status='moderated')\
-                .select_related('author')\
-                .prefetch_related('tags')\
-                .annotate(comment_count=Count('comments'))
+        key = f'article_list_{self.request.GET.get("page", 1)}'
+        data = cache.get(key)
+        if data is None:
+            data = super().get_queryset()
+            if not self.request.GET.get('is_admin', None):
+                data = data.filter(status='moderated')\
+                    .select_related('author')\
+                    .prefetch_related('tags')\
+                    .annotate(comment_count=Count('comments'))
+            cache.set(key, data, 30)
         return data
 
 

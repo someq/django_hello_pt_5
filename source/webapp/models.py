@@ -3,14 +3,22 @@ from django.core.validators import MinLengthValidator
 from django.db import models
 from django.utils import timezone
 
-
+STATUS_NEW = 'new'
 STATUS_MODERATED = 'moderated'
+STATUS_REJECTED = 'rejected'
 STATUS_CHOICES = [
-    ('new', 'Не модерировано'),
+    (STATUS_NEW, 'Не модерировано'),
     (STATUS_MODERATED, 'Модерировано'),
-    ('rejected', 'Отклонено')
+    (STATUS_REJECTED, 'Отклонено')
 ]
-
+ACCESS_OPEN = 'shared'
+ACCESS_HIDDEN = 'hidden'
+ACCESS_CLOSED = 'private'
+ACCESS_CHOICES = [
+    (ACCESS_OPEN, 'Общий'),
+    (ACCESS_HIDDEN, 'Скрытый'),
+    (ACCESS_CLOSED, 'Приватный'),
+]
 
 class Article(models.Model):
     title = models.CharField(max_length=200, null=False, blank=False, verbose_name='Заголовок',
@@ -18,12 +26,15 @@ class Article(models.Model):
     text = models.TextField(max_length=3000, null=False, blank=False, verbose_name='Текст')
     author = models.ForeignKey(get_user_model(), on_delete=models.SET_DEFAULT, default=1,
                                related_name='articles', verbose_name='Автор')
-    status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='new', verbose_name='Модерация')
+    status = models.CharField(max_length=15, choices=STATUS_CHOICES, default=STATUS_NEW, verbose_name='Модерация')
     tags = models.ManyToManyField('webapp.Tag', related_name='articles', blank=True, verbose_name='Теги')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Время создания')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Время изменения')
     publish_at = models.DateTimeField(verbose_name="Время публикации", blank=True, default=timezone.now)
     like_count = models.IntegerField(verbose_name="Счётчик лайков", default=0)
+    access = models.CharField(max_length=15, choices=ACCESS_CHOICES, default=ACCESS_OPEN, verbose_name='Доступ')
+    access_list = models.ManyToManyField(get_user_model(), related_name='access_articles', 
+                                         verbose_name='Кому доступен файл', blank=True)
 
     def save(self, **kwargs):
         if not self.publish_at:

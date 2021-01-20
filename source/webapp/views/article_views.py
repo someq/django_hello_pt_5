@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, \
     UserPassesTestMixin
 from django.core.paginator import Paginator
@@ -8,7 +9,7 @@ from django.urls import reverse, reverse_lazy
 from django.utils.timezone import make_naive
 from django.views.generic import View, DetailView, CreateView, UpdateView, DeleteView
 
-from webapp.models import Article, Tag, ArticleLike
+from webapp.models import Article, Tag, ArticleLike, STATUS_MODERATED, ACCESS_OPEN, ACCESS_CLOSED
 from webapp.forms import ArticleForm, BROWSER_DATETIME_FORMAT
 from .base_views import SearchView
 from django.core.cache import cache
@@ -30,11 +31,11 @@ class IndexView(SearchView):
         if data is None:
             data = super().get_queryset()
             if not self.request.GET.get('is_admin', None):
-                data = data.filter(status='moderated')\
+                data = data.filter(status=STATUS_MODERATED, access=ACCESS_OPEN)\
                     .select_related('author')\
                     .prefetch_related('tags')\
                     .annotate(comment_count=Count('comments'))
-            cache.set(key, data, 30)
+            cache.set(key, data, 60)
         return data
 
 
@@ -77,11 +78,17 @@ class ArticleMassActionView(PermissionRequiredMixin, View):
         return self.queryset
 
 
-class ArticleView(DetailView):
+class ArticleView(UserPassesTestMixin, DetailView):
     template_name = 'article/article_view.html'
     model = Article
     paginate_comments_by = 2
     paginate_comments_orphans = 0
+
+    def test_func(self):
+        article = self.get_object()
+        return article.access != ACCESS_CLOSED \
+               or self.request.user == article.author \
+               or self.request.user in article.access_list.all()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -190,3 +197,19 @@ class ArticleUnLikeView(LoginRequiredMixin, View):
         article.like_count -= 1
         article.save()
         return HttpResponse(article.like_count)
+
+
+class GrantAccessView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        article = get_object_or_404(Article, pk=kwargs.get('pk'))
+        user = get_object_or_404(get_user_model(), username=request.POST.get('username'))
+        article.access_list.add(user)
+        return HttpResponse('{"status": "ok"}')
+
+
+class RemoveAccessView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        article = get_object_or_404(Article, pk=kwargs.get('pk'))
+        user = get_object_or_404(get_user_model(), username=request.POST.get('username'))
+        article.access_list.remove(user)
+        return HttpResponse('{"status": "ok"}')

@@ -30,7 +30,7 @@
                     </a></li>
                 {% endif %}
 
-                {% cache 30 auth_menu request.user.is_authenticated %}
+                {% cache 60 auth_menu request.user.is_authenticated %}
                     {% block auth_menu %}
                         {% if request.user.is_authenticated %}
                             <li><a href="{% url 'accounts:logout' %}?next={{ request.get_full_path }}">Logout</a></li>

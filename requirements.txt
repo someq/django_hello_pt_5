@@ -13,5 +13,5 @@ selenium==3.141.0
 six==1.15.0
 soupsieve==2.0.1
 sqlparse==0.3.1
-urllib3==1.26.0
+urllib3==1.26.3
 django-silk==4.1.0
